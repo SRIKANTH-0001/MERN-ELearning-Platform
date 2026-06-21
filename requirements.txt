@@ -1,0 +1,138 @@
+====================================================
+MERN FULL STACK E-LEARNING PLATFORM
+Requirements Specification
+====================================================
+
+-------------------------------
+SYSTEM REQUIREMENTS
+-------------------------------
+Operating System:
+- Windows 10 / Windows 11
+- macOS
+- Linux (Ubuntu 20.04+)
+
+Processor:
+- Intel i3 or above / AMD equivalent
+
+RAM:
+- Minimum 4 GB
+- Recommended 8 GB
+
+Hard Disk:
+- Minimum 2 GB free space
+
+Browser:
+- Google Chrome (Recommended)
+- Microsoft Edge
+- Mozilla Firefox
+
+-------------------------------
+DEVELOPMENT ENVIRONMENT
+-------------------------------
+Node.js        : v18.x or higher
+npm            : v9.x or higher
+MongoDB        : MongoDB Atlas / MongoDB Community Server
+Git            : Latest Version
+Code Editor    : Visual Studio Code
+
+-------------------------------
+BACKEND REQUIREMENTS
+-------------------------------
+Runtime:
+- Node.js
+
+Framework:
+- Express.js
+
+Database:
+- MongoDB
+- Mongoose ODM
+
+Authentication & Security:
+- JSON Web Token (JWT)
+- bcryptjs
+- dotenv
+- CORS
+
+Backend npm Packages:
+- express
+- mongoose
+- jsonwebtoken
+- bcryptjs
+- dotenv
+- cors
+- nodemon
+
+-------------------------------
+FRONTEND REQUIREMENTS
+-------------------------------
+Framework:
+- React.js
+- Vite
+
+Libraries:
+- react
+- react-dom
+- react-router-dom
+- axios
+
+Languages:
+- HTML5
+- CSS3
+- JavaScript (ES6+)
+
+-------------------------------
+FUNCTIONAL MODULES
+-------------------------------
+- User Authentication & Authorization
+- Role-Based Access Control (Admin, Instructor, Student)
+- Course Management System
+- Learning Content Management
+- Online Quiz & Assessment
+- Real-Time Quiz Evaluation
+- Student Progress Tracking
+- Certificate Generation
+- Notification System
+- Analytics & Engagement Heatmap
+- Admin, Instructor & Student Dashboards
+
+-------------------------------
+DATABASE COLLECTIONS
+-------------------------------
+- Users
+- Courses
+- Contents
+- Quizzes
+- QuizAttempts
+- Progress
+- Certificates
+- Notifications
+
+-------------------------------
+API & COMMUNICATION
+-------------------------------
+- RESTful APIs
+- Axios for frontend-backend communication
+- JSON data format
+- HTTP methods (GET, POST, PUT, DELETE)
+
+-------------------------------
+TESTING & DEBUGGING
+-------------------------------
+- Postman (API Testing)
+- Browser Developer Tools
+- Console Logging
+
+-------------------------------
+OPTIONAL DEPLOYMENT
+-------------------------------
+- Backend: Render / Railway
+- Frontend: Vercel / Netlify
+- Database: MongoDB Atlas
+
+====================================================
+NOTE:
+This requirements file is provided for academic
+documentation purposes. MERN stack applications
+use npm for dependency management.
+====================================================

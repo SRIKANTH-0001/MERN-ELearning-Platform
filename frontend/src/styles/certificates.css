@@ -1,0 +1,33 @@
+.certificate-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+/* Base class remains for targeting but visual styles moved to inline for capture precision */
+.certificate-wrapper {
+    background: #fff;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2);
+}
+
+.download-dropdown .action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    padding-left: 20px !important;
+}
+
+@media print {
+
+    .student-header,
+    .certificate-editor-grid>div:first-child,
+    .download-dropdown {
+        display: none !important;
+    }
+}

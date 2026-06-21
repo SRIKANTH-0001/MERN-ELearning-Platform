@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Certificate PDF Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div id="certificate"
+        style="width: 800px; height: 600px; background: white; border: 10px solid navy; padding: 40px;">
+        <h1 style="text-align: center;">TEST CERTIFICATE</h1>
+        <p style="text-align: center; font-size: 24px;">This is a test</p>
+    </div>
+
+    <button onclick="downloadPDF()" style="margin-top: 20px; padding: 15px 30px; font-size: 18px;">
+        Download Test PDF
+    </button>
+
+    <div id="log" style="margin-top: 20px; padding: 20px; background: #f0f0f0; font-family: monospace;"></div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += message + '<br>';
+            console.log(message);
+        }
+
+        async function downloadPDF() {
+            log('Button clicked!');
+
+            try {
+                log('Getting certificate element...');
+                const element = document.getElementById('certificate');
+
+                log('Calling html2canvas...');
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    logging: true,
+                    backgroundColor: "#ffffff"
+                });
+
+                log('Canvas created: ' + canvas.width + 'x' + canvas.height);
+
+                const imgData = canvas.toDataURL("image/png");
+                log('Image data created');
+
+                log('Creating jsPDF...');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: "landscape",
+                    unit: "mm",
+                    format: "a4"
+                });
+
+                log('Adding image to PDF...');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+                log('Saving PDF...');
+                pdf.save('test_certificate.pdf');
+
+                log('✅ SUCCESS! PDF should be downloading...');
+
+            } catch (error) {
+                log('❌ ERROR: ' + error.message);
+                log('Stack: ' + error.stack);
+            }
+        }
+    </script>
+</body>
+
+</html>

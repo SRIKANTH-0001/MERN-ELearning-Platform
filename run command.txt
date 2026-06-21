@@ -1,0 +1,97 @@
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform>
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> ^C
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> cd 'c:\Users\parth\Desktop\MERN-ELearning-Platform'
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> dir
+
+
+    Directory: C:\Users\parth\Desktop\MERN-ELearning-Platform
+
+
+Mode                 LastWriteTime         Length Name        
+----                 -------------         ------ ----
+d-----        29-01-2026     14:52                backend     
+d-----        02-02-2026     10:52                frontend     
+-a----        30-01-2026     15:30            413 package.json   
+-a----        30-01-2026     10:44           1699 README.md      
+-a----        30-01-2026     10:40           2901 requirements   
+                                                  .txt
+
+
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> cd 'c:\Users\parth\Desktop\MERN-ELearning-Platform'
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> npm install && npm run dev
+At line:1 char:13
++ npm install && npm run dev
++             ~~
+The token '&&' is not a valid statement separator in this        
+version.
+    + CategoryInfo          : ParserError: (:) [], ParentContaiversion.
+    + CategoryInfo          : ParserError: (:) [], ParentContai
+   nsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
+
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> cd 'c:\Users\parth\Desktop\MERN-ELearning-Platform'
+PS C:\Users\parth\Desktop\MERN-ELearning-Platform> npm install; npm run dev
+
+added 29 packages, and audited 30 packages in 39s
+
+7 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+> mern-elearning-platform@1.0.0 dev
+> npx concurrently "npm run backend" "npm run frontend"        
+
+(node:23416) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[1] 
+[1] > mern-elearning-platform@1.0.0 frontend
+[1] > npm run dev --prefix frontend
+[1]
+[0]
+[0] > mern-elearning-platform@1.0.0 backend
+[0] > npm run dev --prefix backend
+[0]
+[0] 
+[0] > backend@1.0.0 dev
+[0] > nodemon server.js
+[0]
+[1]
+[1] > frontend@1.0.0 dev
+[1] > vite
+[1]
+[0] [nodemon] 3.1.11
+[0] [nodemon] to restart at any time, enter `rs`
+[0] [nodemon] watching path(s): *.*
+[0] [nodemon] watching extensions: js,mjs,cjs,json
+[0] [nodemon] starting `node server.js`
+[0] node:events:486
+[0]       throw er; // Unhandled 'error' event
+[0]       ^
+[0]
+[0] Error: listen EADDRINUSE: address already in use :::5005   
+[0]     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]     at listenInCluster (node:net:1997:12)
+[0]     at Server.listen (node:net:2102:7)
+[0]     at Object.<anonymous> (C:\Users\parth\Desktop\MERN-ELearning-Platform\backend\server.js:50:8)
+[0]     at Module._compile (node:internal/modules/cjs/loader:1760:14)
+[0]     at Object..js (node:internal/modules/cjs/loader:1893:10)
+[0]     at Module.load (node:internal/modules/cjs/loader:1480:32)
+[0]     at Module._load (node:internal/modules/cjs/loader:1299:12)
+[0]     at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+[0]     at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)
+[0] Emitted 'error' event on Server instance at:
+[0]     at emitErrorNT (node:net:1976:8)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[0]   code: 'EADDRINUSE',
+[0]   errno: -4091,
+[0]   syscall: 'listen',
+[0]   address: '::',
+[0]   port: 5005
+[0] }
+[0]
+[0] Node.js v24.11.0
+[0] [nodemon] app crashed - waiting for file changes before starting...
+[1]
+[1]   VITE v5.4.21  ready in 3080 ms
+[1]
