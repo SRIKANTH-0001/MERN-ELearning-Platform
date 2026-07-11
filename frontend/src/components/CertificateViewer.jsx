@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 // Import jsPDF differently to handle Vite bundling
 let jsPDF;
 
-const CertificateViewer = ({ studentName, studentProfession, courseTitle, certificateId }) => {
+const CertificateViewer = ({ studentName, studentProfession, courseTitle, certificateId, isEligible = false, downloaded = false, buttonText = "Download Your Certificate (PDF)", onDownloadSuccess = () => {} }) => {
   const certificateRef = useRef();
 
   const downloadPDF = async () => {
@@ -86,6 +86,7 @@ const CertificateViewer = ({ studentName, studentProfession, courseTitle, certif
       });
 
       console.log("=== PDF DOWNLOAD COMPLETE ===");
+      onDownloadSuccess();
 
     } catch (error) {
       console.error("=== PDF GENERATION ERROR ===");
@@ -326,37 +327,62 @@ const CertificateViewer = ({ studentName, studentProfession, courseTitle, certif
       </div>
 
       {/* Download Button */}
-      <button
-        onClick={downloadPDF}
-        type="button"
-        style={{
-          background: 'linear-gradient(135deg, #1a365d 0%, #2563eb 100%)',
-          color: '#fff',
-          padding: '18px 50px',
-          borderRadius: '50px',
-          border: 'none',
-          fontSize: '19px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          boxShadow: '0 8px 25px rgba(26, 54, 93, 0.35)',
-          transition: 'all 0.3s ease',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          fontFamily: 'Arial, sans-serif'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-3px)';
-          e.currentTarget.style.boxShadow = '0 12px 35px rgba(26, 54, 93, 0.45)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 8px 25px rgba(26, 54, 93, 0.35)';
-        }}
-      >
-        <span style={{ fontSize: '24px' }}>📄</span>
-        Download Your Certificate (PDF)
-      </button>
+      {downloaded ? (
+        <div style={{
+          padding: '18px 28px',
+          borderRadius: '30px',
+          background: 'rgba(16, 185, 129, 0.12)',
+          color: '#d1fae5',
+          border: '1px solid rgba(16, 185, 129, 0.35)',
+          fontWeight: '700',
+          fontSize: '16px',
+          textAlign: 'center',
+          width: '100%',
+          maxWidth: '420px'
+        }}>
+          Certificate already downloaded for this quiz.
+        </div>
+      ) : (
+        <button
+          onClick={downloadPDF}
+          type="button"
+          disabled={!isEligible}
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            pointerEvents: isEligible ? 'auto' : 'none',
+            background: isEligible ? 'linear-gradient(135deg, #1a365d 0%, #2563eb 100%)' : 'rgba(107, 114, 128, 0.7)',
+            color: '#fff',
+            padding: '18px 50px',
+            borderRadius: '50px',
+            border: 'none',
+            fontSize: '19px',
+            fontWeight: 'bold',
+            cursor: isEligible ? 'pointer' : 'not-allowed',
+            boxShadow: isEligible ? '0 8px 25px rgba(26, 54, 93, 0.35)' : 'none',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontFamily: 'Arial, sans-serif'
+          }}
+          onMouseEnter={(e) => {
+            if (isEligible) {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 12px 35px rgba(26, 54, 93, 0.45)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (isEligible) {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 25px rgba(26, 54, 93, 0.35)';
+            }
+          }}
+        >
+          <span style={{ fontSize: '24px' }}>📄</span>
+          {buttonText}
+        </button>
+      )}
     </div>
   );
 };

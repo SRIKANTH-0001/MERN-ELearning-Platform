@@ -336,10 +336,21 @@ const AttemptQuiz = () => {
               >
                 📚 Back to My Courses
               </button>
-              {results.level === "Master" && (
+              {results.level === "Master" && courseId && (
                 <button
                   className="action-btn"
-                  onClick={() => navigate("/student/certificates")}
+                  onClick={() => {
+                    const eligibilityKey = `certificate_eligible_${courseId}`;
+                    const titleKey = `certificate_course_title_${courseId}`;
+                    localStorage.setItem(eligibilityKey, "true");
+                    localStorage.setItem(titleKey, quiz?.title || "");
+                    navigate("/student/certificates", {
+                      state: {
+                        courseId,
+                        courseTitle: quiz?.title || "",
+                      }
+                    });
+                  }}
                   style={{
                     background: "linear-gradient(90deg, #10b981, #059669)",
                     padding: "15px 40px",

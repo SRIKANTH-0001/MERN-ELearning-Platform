@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import StudentLayout from "../../components/StudentLayout";
 import CertificateViewer from "../../components/CertificateViewer";
 import { useAuth } from "../../context/AuthContext";
@@ -6,11 +7,16 @@ import { getMyEnrolledCourses } from "../../api/courseApi";
 import { toast } from "react-toastify";
 
 const CertificatePage = () => {
+  const location = useLocation();
   const { user } = useAuth();
   const [formName, setFormName] = useState("");
   const [formCourse, setFormCourse] = useState("");
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [certificateId] = useState(`CERT-${Date.now().toString().slice(-6)}`);
+  const [certificateEligible, setCertificateEligible] = useState(false);
+  const [eligibleCourseId, setEligibleCourseId] = useState("");
+  const [eligibleCourseTitle, setEligibleCourseTitle] = useState("");
+  const [certificateDownloaded, setCertificateDownloaded] = useState(false);
 
   const [formProfession, setFormProfession] = useState("Full Stack Developer");
 
@@ -18,14 +24,50 @@ const CertificatePage = () => {
     if (user && !formName) setFormName(user.name);
   }, [user, formName]);
 
+  useEffect(() => {
+    const state = location.state || {};
+    const stateCourseId = state.courseId;
+    const eligibilityKey = stateCourseId ? `certificate_eligible_${stateCourseId}` : null;
+
+    if (eligibilityKey && window.localStorage.getItem(eligibilityKey) === "true") {
+      setCertificateEligible(true);
+      setEligibleCourseId(stateCourseId);
+      setEligibleCourseTitle(state.courseTitle || window.localStorage.getItem(`certificate_course_title_${stateCourseId}`) || "");
+      setFormCourse(state.courseTitle || window.localStorage.getItem(`certificate_course_title_${stateCourseId}`) || "");
+    } else {
+      // Restore eligibility if user returns later or refreshes the certificates page
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const key = window.localStorage.key(i);
+        if (key?.startsWith("certificate_eligible_") && window.localStorage.getItem(key) === "true") {
+          const courseIdFromKey = key.replace("certificate_eligible_", "");
+          setCertificateEligible(true);
+          setEligibleCourseId(courseIdFromKey);
+          const storedTitle = window.localStorage.getItem(`certificate_course_title_${courseIdFromKey}`) || "";
+          setEligibleCourseTitle(storedTitle);
+          setFormCourse(storedTitle || formCourse);
+          break;
+        }
+      }
+    }
+
+    if (stateCourseId) {
+      const downloadKey = `certificate_downloaded_${stateCourseId}`;
+      if (window.localStorage.getItem(downloadKey) === "true") {
+        setCertificateDownloaded(true);
+        setCertificateEligible(false);
+      }
+    }
+  }, [location.state, formCourse]);
+
   const fetchCourses = async () => {
     try {
       const courses = await getMyEnrolledCourses();
       console.log("Enrolled Courses:", courses);
       setEnrolledCourses(courses);
-      if (courses.length > 0) {
+      if (courses.length > 0 && !formCourse) {
         setFormCourse(courses[0].title);
-      } else {
+      }
+      if (courses.length === 0) {
         toast.info("No enrolled courses found. Please enroll in a course first.");
       }
     } catch (err) {
@@ -41,6 +83,23 @@ const CertificatePage = () => {
   const handleGenerate = (e) => {
     e.preventDefault();
   };
+
+  const handleDownloadSuccess = () => {
+    if (eligibleCourseId) {
+      const eligibilityKey = `certificate_eligible_${eligibleCourseId}`;
+      const downloadKey = `certificate_downloaded_${eligibleCourseId}`;
+      window.localStorage.removeItem(eligibilityKey);
+      window.localStorage.setItem(downloadKey, "true");
+      setCertificateDownloaded(true);
+      setCertificateEligible(false);
+    }
+  };
+
+  const downloadButtonText = certificateDownloaded
+    ? "Certificate already downloaded"
+    : certificateEligible
+      ? "Download Your Certificate (PDF)"
+      : "Quiz completion required to download";
 
   return (
     <StudentLayout>
@@ -103,8 +162,13 @@ const CertificatePage = () => {
           <CertificateViewer
             studentName={formName || "Student Name"}
             studentProfession={formProfession || "Full Stack Developer"}
-            courseTitle={formCourse || "Select a Course"}
+            courseTitle={formCourse || (certificateEligible ? eligibleCourseTitle : "Select a Course")}
             certificateId={certificateId}
+            isEligible={certificateEligible && !certificateDownloaded}
+            downloaded={certificateDownloaded}
+            buttonText={downloadButtonText}
+            showDownloadOnly={certificateEligible}
+            onDownloadSuccess={handleDownloadSuccess}
           />
         </div>
       </div>
