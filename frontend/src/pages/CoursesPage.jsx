@@ -17,7 +17,11 @@ const CoursesPage = () => {
         const fetchCourses = async () => {
             try {
                 const data = await getAllCourses();
-                setCourses(data);
+                const normalized = data.map((course) => ({
+                    ...course,
+                    isEnrolled: user && course.studentsEnrolled?.some((id) => id.toString() === user._id),
+                }));
+                setCourses(normalized);
             } catch (error) {
                 console.error("Error fetching courses:", error);
                 toast.error("Failed to load courses. Please try again later.");
@@ -27,9 +31,14 @@ const CoursesPage = () => {
         };
 
         fetchCourses();
-    }, []);
+    }, [user]);
 
     const handleEnroll = async (courseId) => {
+        const course = courses.find((course) => course._id === courseId);
+        if (course?.isEnrolled) {
+            return;
+        }
+
         if (!isAuthenticated) {
             toast.info("Please login to enroll in courses.");
             navigate("/login");
@@ -38,6 +47,11 @@ const CoursesPage = () => {
 
         try {
             await enrollInCourse(courseId);
+            setCourses((prevCourses) =>
+                prevCourses.map((course) =>
+                    course._id === courseId ? { ...course, isEnrolled: true } : course
+                )
+            );
             toast.success("Successfully enrolled!");
             navigate(`/student/course-player/${courseId}`);
         } catch (error) {
@@ -67,7 +81,12 @@ const CoursesPage = () => {
 
                 <div className="courses-container">
                     {courses.map((course) => (
-                        <div key={course._id} className="public-course-card">
+                        <div
+                            key={course._id}
+                            className="public-course-card"
+                            onClick={() => navigate(`/student/course-player/${course._id}`)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <div className="public-course-thumbnail">
                                 <img src={course.thumbnailUrl || "/ai_ml_course.png"} alt={course.title} />
                                 <div className="course-badge">{course.level || "Beginner"}</div>
@@ -102,10 +121,14 @@ const CoursesPage = () => {
                                 </div>
 
                                 <button
-                                    onClick={() => handleEnroll(course._id)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEnroll(course._id);
+                                    }}
                                     className="enroll-now-btn"
+                                    disabled={course.isEnrolled}
                                 >
-                                    Enroll Now
+                                    {course.isEnrolled ? "Enrolled" : "Enroll Now"}
                                 </button>
                             </div>
                         </div>

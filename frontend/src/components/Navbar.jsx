@@ -19,6 +19,9 @@ const Navbar = () => {
       <div style={styles.navLinks}>
         <Link to="/" style={styles.link}>Home</Link>
         <Link to="/courses" style={styles.link}>Courses</Link>
+        {isAuthenticated && user?.role === "student" && (
+          <Link to="/student" style={styles.link}>Dashboard</Link>
+        )}
 
         {isAuthenticated ? (
           <div style={styles.authLinks}>

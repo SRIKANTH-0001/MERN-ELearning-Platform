@@ -82,7 +82,7 @@ const CoursePlayer = () => {
       {/* Top Navigation */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', maxWidth: '1600px', margin: '0 auto 20px auto' }}>
         <button
-          onClick={() => navigate('/student/courses')}
+          onClick={() => navigate('/courses')}
           style={{
             background: 'rgba(255,255,255,0.1)',
             border: '1px solid rgba(255,255,255,0.2)',
@@ -97,7 +97,7 @@ const CoursePlayer = () => {
             fontWeight: '600'
           }}
         >
-          ← Back
+         ← Back
         </button>
 
         <div style={{ flex: 1 }}>
