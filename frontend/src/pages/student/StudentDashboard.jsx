@@ -105,9 +105,14 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                   <button
+                    type="button"
                     className="action-btn"
-                    onClick={() => navigate(`/student/course-player/${course._id}`, { state: { fromDashboard: true } })}
-                    style={{ padding: "8px 18px", fontSize: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                    onClick={() => {
+                      const target = `/student/course-player/${course._id}`;
+                      console.log("Continue Learning clicked", target);
+                      navigate(target, { state: { fromDashboard: true } });
+                    }}
+                    style={{ cursor: "pointer" }}
                   >
                     Continue Learning
                   </button>

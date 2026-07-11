@@ -137,7 +137,9 @@ const AttemptQuiz = () => {
                 display: "flex",
                 flexDirection: "column",
                 border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(30, 41, 59, 0.7)"
+                background: "rgba(30, 41, 59, 0.7)",
+                position: "relative",
+                zIndex: 1
               }} onClick={() => handleCourseSelect(course._id)}>
                 <div style={{ height: "160px", background: `url(${course.thumbnail || 'https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?q=80&w=600&auto=format&fit=crop'}) center/cover` }}></div>
                 <div style={{ padding: "24px", flex: "1", display: "flex", flexDirection: "column" }}>
@@ -149,7 +151,14 @@ const AttemptQuiz = () => {
                       e.stopPropagation();
                       handleCourseSelect(course._id);
                     }}
-                    style={{ marginTop: "auto", background: "linear-gradient(90deg, #6366f1, #a855f7)", borderRadius: "10px" }}
+                    style={{
+                      marginTop: "auto",
+                      background: "linear-gradient(90deg, #6366f1, #a855f7)",
+                      borderRadius: "10px",
+                      position: "relative",
+                      zIndex: 2,
+                      pointerEvents: "auto"
+                    }}
                   >
                     Start Assessment
                   </button>
@@ -157,11 +166,20 @@ const AttemptQuiz = () => {
               </div>
             ))
           ) : (
-            <div className="glass-card" style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px" }}>
+            <div className="glass-card" style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", position: "relative", zIndex: 1 }}>
               <div style={{ fontSize: "64px", marginBottom: "20px" }}>📝</div>
               <h3>No courses found.</h3>
               <p style={{ color: "#94a3b8", marginBottom: "30px" }}>Enroll in a course to start taking quizzes!</p>
-              <button className="action-btn" onClick={() => navigate("/student/courses")} style={{ background: "linear-gradient(90deg, #3b82f6, #2563eb)" }}>
+              <button
+                className="action-btn"
+                onClick={() => navigate("/student/courses")}
+                style={{
+                  background: "linear-gradient(90deg, #3b82f6, #2563eb)",
+                  position: "relative",
+                  zIndex: 2,
+                  pointerEvents: "auto"
+                }}
+              >
                 Explore Courses
               </button>
             </div>
@@ -174,10 +192,19 @@ const AttemptQuiz = () => {
   if (error) {
     return (
       <StudentLayout>
-        <div className="glass-card" style={{ textAlign: "center", padding: "60px", maxWidth: "600px", margin: "40px auto", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
+        <div className="glass-card" style={{ textAlign: "center", padding: "60px", maxWidth: "600px", margin: "40px auto", border: "1px solid rgba(239, 68, 68, 0.2)", position: "relative", zIndex: 1 }}>
           <div style={{ fontSize: "48px", marginBottom: "20px" }}>⚠️</div>
           <p style={{ color: "#ef4444", fontSize: "20px", fontWeight: "600", marginBottom: "30px" }}>{error}</p>
-          <button className="action-btn" onClick={() => setCourseId("")} style={{ background: "rgba(255,255,255,0.1)" }}>
+          <button
+            className="action-btn"
+            onClick={() => setCourseId("")}
+            style={{
+              background: "rgba(255,255,255,0.1)",
+              position: "relative",
+              zIndex: 2,
+              pointerEvents: "auto"
+            }}
+          >
             Go Back to Selection
           </button>
         </div>
@@ -192,7 +219,7 @@ const AttemptQuiz = () => {
     return (
       <StudentLayout>
         <div className="quiz-results-container" style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 20px" }}>
-          <div className="glass-card" style={{ textAlign: "center", padding: "60px", borderRadius: "32px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(15, 23, 42, 0.8)" }}>
+          <div className="glass-card" style={{ textAlign: "center", padding: "60px", borderRadius: "32px", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(15, 23, 42, 0.8)", position: "relative", zIndex: 1 }}>
             <div style={{ marginBottom: "40px" }}>
               {scorePercent >= 80 ? (
                 <div style={{ fontSize: "80px", animation: "bounce 2s infinite" }}>🏆</div>
@@ -254,7 +281,11 @@ const AttemptQuiz = () => {
                       border: "1px solid rgba(255,255,255,0.05)",
                       transition: "all 0.3s ease",
                       display: "flex",
-                      flexDirection: "column"
+                      flexDirection: "column",
+                      position: "relative",
+                      zIndex: 2,
+                      pointerEvents: "auto",
+                      cursor: "pointer"
                     }}
                   >
                     <div style={{ height: "140px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: "20px" }}>
@@ -273,14 +304,54 @@ const AttemptQuiz = () => {
             </div>
 
             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", marginTop: "60px" }}>
-              <button className="action-btn" onClick={() => navigate("/student/progress")} style={{ background: "rgba(59, 130, 246, 0.2)", padding: "15px 30px", border: "1px solid rgba(59, 130, 246, 0.3)", borderRadius: "12px" }}>
+              <button
+                className="action-btn"
+                onClick={() => navigate("/student/progress")}
+                style={{
+                  background: "rgba(59, 130, 246, 0.2)",
+                  padding: "15px 30px",
+                  border: "1px solid rgba(59, 130, 246, 0.3)",
+                  borderRadius: "12px",
+                  position: "relative",
+                  zIndex: 2,
+                  pointerEvents: "auto",
+                  cursor: "pointer"
+                }}
+              >
                 📊 View My Progress
               </button>
-              <button className="action-btn" onClick={() => navigate("/student/courses")} style={{ background: "rgba(255,255,255,0.05)", padding: "15px 30px", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}>
+              <button
+                className="action-btn"
+                onClick={() => navigate("/student/courses")}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  padding: "15px 30px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  position: "relative",
+                  zIndex: 2,
+                  pointerEvents: "auto",
+                  cursor: "pointer"
+                }}
+              >
                 📚 Back to My Courses
               </button>
               {results.level === "Master" && (
-                <button className="action-btn" onClick={() => navigate("/student/certificates")} style={{ background: "linear-gradient(90deg, #10b981, #059669)", padding: "15px 40px", fontWeight: "bold", borderRadius: "12px", boxShadow: "0 10px 20px rgba(16, 185, 129, 0.2)" }}>
+                <button
+                  className="action-btn"
+                  onClick={() => navigate("/student/certificates")}
+                  style={{
+                    background: "linear-gradient(90deg, #10b981, #059669)",
+                    padding: "15px 40px",
+                    fontWeight: "bold",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 20px rgba(16, 185, 129, 0.2)",
+                    position: "relative",
+                    zIndex: 2,
+                    pointerEvents: "auto",
+                    cursor: "pointer"
+                  }}
+                >
                   Claim My Certificate 🎓
                 </button>
               )}
@@ -334,7 +405,9 @@ const AttemptQuiz = () => {
               padding: "40px",
               border: "1px solid rgba(255,255,255,0.1)",
               background: "rgba(30, 41, 59, 0.5)",
-              transition: "transform 0.3s ease"
+              transition: "transform 0.3s ease",
+              position: "relative",
+              zIndex: 1
             }}>
               <div style={{ display: "flex", gap: "20px", marginBottom: "25px" }}>
                 <div style={{
@@ -362,10 +435,15 @@ const AttemptQuiz = () => {
                   const isSelected = selectedAnswers[index] === opt;
 
                   return (
-                    <div
+                    <button
                       key={oIdx}
+                      type="button"
                       onClick={() => handleOptionSelect(index, opt)}
                       style={{
+                        position: "relative",
+                        zIndex: 2,
+                        pointerEvents: "auto",
+                        width: "100%",
                         padding: "18px 24px",
                         borderRadius: "16px",
                         cursor: "pointer",
@@ -378,7 +456,8 @@ const AttemptQuiz = () => {
                         background: isSelected ? "rgba(59, 130, 246, 0.1)" : "rgba(255, 255, 255, 0.02)",
                         color: isSelected ? "#fff" : "#cbd5e1",
                         transform: isSelected ? "translateX(10px)" : "none",
-                        userSelect: "none"
+                        userSelect: "none",
+                        textAlign: "left"
                       }}
                     >
                       <div style={{
@@ -395,7 +474,7 @@ const AttemptQuiz = () => {
                         {isSelected && <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#3b82f6" }}></div>}
                       </div>
                       <span style={{ fontSize: "16px", fontWeight: "500" }}>{opt}</span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -437,7 +516,10 @@ const AttemptQuiz = () => {
                 opacity: (submitting || answeredCount < totalQuestions) ? 0.7 : 1,
                 cursor: (submitting || answeredCount < totalQuestions) ? "not-allowed" : "pointer",
                 borderRadius: "15px",
-                boxShadow: answeredCount < totalQuestions ? "none" : "0 10px 30px rgba(59, 130, 246, 0.4)"
+                boxShadow: answeredCount < totalQuestions ? "none" : "0 10px 30px rgba(59, 130, 246, 0.4)",
+                position: "relative",
+                zIndex: 2,
+                pointerEvents: "auto"
               }}
             >
               {submitting ? "Analyzing Your Expertise..." : "Complete & View Results"}
