@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import StudentLayout from "../../components/StudentLayout";
 import CertificateViewer from "../../components/CertificateViewer";
 import { useAuth } from "../../context/AuthContext";
+import api from "../../api/axios";
 import { getMyEnrolledCourses } from "../../api/courseApi";
 import { toast } from "react-toastify";
 
@@ -25,39 +26,27 @@ const CertificatePage = () => {
   }, [user, formName]);
 
   useEffect(() => {
-    const state = location.state || {};
-    const stateCourseId = state.courseId;
-    const eligibilityKey = stateCourseId ? `certificate_eligible_${stateCourseId}` : null;
+    const loadCertificateState = async () => {
+      const state = location.state || {};
+      const stateCourseId = state.courseId;
 
-    if (eligibilityKey && window.localStorage.getItem(eligibilityKey) === "true") {
-      setCertificateEligible(true);
+      if (!stateCourseId) return;
+
       setEligibleCourseId(stateCourseId);
-      setEligibleCourseTitle(state.courseTitle || window.localStorage.getItem(`certificate_course_title_${stateCourseId}`) || "");
-      setFormCourse(state.courseTitle || window.localStorage.getItem(`certificate_course_title_${stateCourseId}`) || "");
-    } else {
-      // Restore eligibility if user returns later or refreshes the certificates page
-      for (let i = 0; i < window.localStorage.length; i++) {
-        const key = window.localStorage.key(i);
-        if (key?.startsWith("certificate_eligible_") && window.localStorage.getItem(key) === "true") {
-          const courseIdFromKey = key.replace("certificate_eligible_", "");
-          setCertificateEligible(true);
-          setEligibleCourseId(courseIdFromKey);
-          const storedTitle = window.localStorage.getItem(`certificate_course_title_${courseIdFromKey}`) || "";
-          setEligibleCourseTitle(storedTitle);
-          setFormCourse(storedTitle || formCourse);
-          break;
-        }
-      }
-    }
+      setEligibleCourseTitle(state.courseTitle || "");
+      setFormCourse(state.courseTitle || "");
 
-    if (stateCourseId) {
-      const downloadKey = `certificate_downloaded_${stateCourseId}`;
-      if (window.localStorage.getItem(downloadKey) === "true") {
-        setCertificateDownloaded(true);
-        setCertificateEligible(false);
+      try {
+        const response = await api.get(`/certificates/course/${stateCourseId}`);
+        setCertificateEligible(response.data.eligible);
+        setCertificateDownloaded(response.data.downloaded);
+      } catch (err) {
+        console.error("Failed to load certificate status", err);
       }
-    }
-  }, [location.state, formCourse]);
+    };
+
+    loadCertificateState();
+  }, [location.state]);
 
   const fetchCourses = async () => {
     try {
@@ -84,14 +73,16 @@ const CertificatePage = () => {
     e.preventDefault();
   };
 
-  const handleDownloadSuccess = () => {
-    if (eligibleCourseId) {
-      const eligibilityKey = `certificate_eligible_${eligibleCourseId}`;
-      const downloadKey = `certificate_downloaded_${eligibleCourseId}`;
-      window.localStorage.removeItem(eligibilityKey);
-      window.localStorage.setItem(downloadKey, "true");
+  const handleDownloadSuccess = async () => {
+    if (!eligibleCourseId) return;
+
+    try {
+      await api.put(`/certificates/course/${eligibleCourseId}/download`);
       setCertificateDownloaded(true);
       setCertificateEligible(false);
+    } catch (err) {
+      console.error("Failed to mark certificate downloaded", err);
+      toast.error("Unable to update certificate status. Please try again.");
     }
   };
 

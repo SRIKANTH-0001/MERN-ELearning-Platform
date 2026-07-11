@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import StudentLayout from "../../components/StudentLayout";
 import Lottie from "lottie-react";
+import api from "../../api/axios";
 import { submitQuiz, getQuizByCourse } from "../../api/quizApi";
 import { getMyEnrolledCourses } from "../../api/courseApi";
 
@@ -21,14 +22,21 @@ const AttemptQuiz = () => {
   const [animations, setAnimations] = useState({ success: null, sad: null });
 
   useEffect(() => {
-    // Fetch animations
-    fetch("https://assets9.lottiefiles.com/packages/lf20_pqnfmone.json")
-      .then(res => res.json())
-      .then(data => setAnimations(prev => ({ ...prev, success: data })));
+    const loadAnimation = async (url, key) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`Animation request failed: ${res.status} ${res.statusText}`);
+        }
+        const data = await res.json();
+        setAnimations((prev) => ({ ...prev, [key]: data }));
+      } catch (err) {
+        console.warn(`Unable to load ${key} animation:`, err);
+      }
+    };
 
-    fetch("https://assets1.lottiefiles.com/packages/lf20_0p96p5u6.json")
-      .then(res => res.json())
-      .then(data => setAnimations(prev => ({ ...prev, sad: data })));
+    loadAnimation("https://assets9.lottiefiles.com/packages/lf20_pqnfmone.json", "success");
+    loadAnimation("https://assets1.lottiefiles.com/packages/lf20_0p96p5u6.json", "sad");
   }, []);
 
   useEffect(() => {
@@ -339,11 +347,12 @@ const AttemptQuiz = () => {
               {results.level === "Master" && courseId && (
                 <button
                   className="action-btn"
-                  onClick={() => {
-                    const eligibilityKey = `certificate_eligible_${courseId}`;
-                    const titleKey = `certificate_course_title_${courseId}`;
-                    localStorage.setItem(eligibilityKey, "true");
-                    localStorage.setItem(titleKey, quiz?.title || "");
+                  onClick={async () => {
+                    try {
+                      await api.post("/certificates", { courseId });
+                    } catch (err) {
+                      console.error("Certificate claim failed:", err);
+                    }
                     navigate("/student/certificates", {
                       state: {
                         courseId,

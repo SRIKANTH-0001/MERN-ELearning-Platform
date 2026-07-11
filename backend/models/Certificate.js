@@ -20,6 +20,15 @@ const certificateSchema = new mongoose.Schema(
       unique: true,
     },
 
+    downloaded: {
+      type: Boolean,
+      default: false,
+    },
+
+    downloadedAt: {
+      type: Date,
+    },
+
     issuedAt: {
       type: Date,
       default: Date.now,

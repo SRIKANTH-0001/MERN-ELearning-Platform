@@ -1,5 +1,6 @@
 const Quiz = require("../models/Quiz");
 const QuizAttempt = require("../models/QuizAttempt");
+const Progress = require("../models/Progress");
 const Course = require("../models/Course");
 
 // Helper for platform thumbnails and links
@@ -121,6 +122,36 @@ exports.submitQuiz = async (req, res) => {
     suggestions,
     learningPath: learningLinks
   });
+
+  try {
+    const totalQuizzes = await Quiz.countDocuments({ course: quiz.course._id });
+    const progressRecord = await Progress.findOne({
+      student: req.user.id,
+      course: quiz.course._id,
+    });
+
+    if (progressRecord) {
+      if (!progressRecord.quizzesAttempted.includes(attempt._id)) {
+        progressRecord.quizzesAttempted.push(attempt._id);
+      }
+
+      progressRecord.completionPercentage = totalQuizzes > 0
+        ? Math.round((progressRecord.quizzesAttempted.length / totalQuizzes) * 100)
+        : 0;
+      progressRecord.isCompleted = progressRecord.completionPercentage >= 100;
+      await progressRecord.save();
+    } else {
+      await Progress.create({
+        student: req.user.id,
+        course: quiz.course._id,
+        quizzesAttempted: [attempt._id],
+        completionPercentage: totalQuizzes > 0 ? Math.round((1 / totalQuizzes) * 100) : 0,
+        isCompleted: totalQuizzes === 1,
+      });
+    }
+  } catch (progressError) {
+    console.error("Failed to update progress record:", progressError);
+  }
 
   res.json(attempt);
 };
