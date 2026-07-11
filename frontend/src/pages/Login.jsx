@@ -10,12 +10,34 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const validateCredentials = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
+
+    if (password.length < 8) {
+      setError("Password should contain at least 8 characters.");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!validateCredentials()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -56,13 +78,21 @@ const Login = () => {
 
           <div className="auth-input-group">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="auth-input"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
           </div>
 
           <button type="submit" className="auth-btn" disabled={loading}>

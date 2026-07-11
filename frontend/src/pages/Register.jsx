@@ -13,6 +13,7 @@ const Register = () => {
     password: "",
     role: "student", // Default role
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,9 +22,30 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(form.email)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
+
+    if (form.password.length < 8) {
+      setError("Password should contain at least 8 characters.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -71,7 +93,7 @@ const Register = () => {
 
           <div className="auth-input-group">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               className="auth-input"
               placeholder="Password"
@@ -79,6 +101,14 @@ const Register = () => {
               onChange={handleChange}
               required
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
           </div>
 
           <div className="auth-input-group">

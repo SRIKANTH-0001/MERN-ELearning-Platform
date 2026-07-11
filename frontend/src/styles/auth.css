@@ -85,6 +85,26 @@
   position: relative;
 }
 
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  color: #00c6ff;
+}
+
 .auth-input {
   width: 100%;
   padding: 12px 16px;
