@@ -67,7 +67,10 @@ const StudentDashboard = () => {
             <h3 style={{ fontSize: '22px' }}>🎯 My Active Learning</h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               <select
-                onChange={(e) => e.target.value && navigate(`/student/course-player/${e.target.value}`)}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  navigate(`/student/course-player/${e.target.value}`, { state: { fromDashboard: true } });
+                }}
                 style={{
                   padding: '8px 12px',
                   borderRadius: '8px',
@@ -103,7 +106,7 @@ const StudentDashboard = () => {
                   </div>
                   <button
                     className="action-btn"
-                    onClick={() => navigate(`/student/course-player/${course._id}`)}
+                    onClick={() => navigate(`/student/course-player/${course._id}`, { state: { fromDashboard: true } })}
                     style={{ padding: "8px 18px", fontSize: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
                   >
                     Continue Learning

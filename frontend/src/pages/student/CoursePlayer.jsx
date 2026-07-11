@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getContentByCourse } from "../../api/contentApi";
 import { getCourseById } from "../../api/courseApi";
 import { toast } from "react-toastify";
@@ -8,6 +8,7 @@ import "../../styles/coursePlayer.css";
 const CoursePlayer = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [course, setCourse] = useState(null);
   const [contents, setContents] = useState([]);
   const [activeContent, setActiveContent] = useState(null);
@@ -82,7 +83,7 @@ const CoursePlayer = () => {
       {/* Top Navigation */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', maxWidth: '1600px', margin: '0 auto 20px auto' }}>
         <button
-          onClick={() => navigate('/courses')}
+          onClick={() => navigate('/student')}
           style={{
             background: 'rgba(255,255,255,0.1)',
             border: '1px solid rgba(255,255,255,0.2)',

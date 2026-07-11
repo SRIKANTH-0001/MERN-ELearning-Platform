@@ -50,8 +50,8 @@ const EnrolledCourses = () => {
           courses.map((course) => (
             <CourseCard
               key={course._id}
-              course={course}
-              onEnroll={() => handleStartLearning(course._id)}
+              course={{ ...course, isEnrolled: true }}
+              onEnroll={handleStartLearning}
             />
           ))
         ) : (

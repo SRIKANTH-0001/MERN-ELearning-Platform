@@ -1,11 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/student.css";
 
 const CourseCard = ({ course, onEnroll }) => {
+  const navigate = useNavigate();
   const defaultThumb = "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=600&auto=format&fit=crop";
 
   return (
-    <div className="glass-card course-card" style={{ padding: '0', display: 'flex', flexDirection: 'column', minHeight: '450px' }}>
+    <div
+      className="glass-card course-card"
+      style={{ padding: '0', display: 'flex', flexDirection: 'column', minHeight: '450px', cursor: 'pointer' }}
+      onClick={() => navigate(`/student/course-player/${course._id}`)}
+    >
       <div className="course-thumbnail" style={{ height: '200px', position: 'relative' }}>
         <img src={course.thumbnail || defaultThumb} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', top: '15px', right: '15px', background: 'rgba(15, 23, 42, 0.8)', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -32,7 +38,7 @@ const CourseCard = ({ course, onEnroll }) => {
         <div className="course-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', gap: '15px' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>⏱️ {course.duration || "12h"}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>👨‍🏫 {typeof course.instructor === 'object' ? course.instructor.name : (course.instructor || "Expert")}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>👨‍🏫 {(course.instructor && typeof course.instructor === 'object') ? course.instructor.name : (course.instructor || "Expert")}</span>
           </div>
         </div>
 
@@ -48,7 +54,7 @@ const CourseCard = ({ course, onEnroll }) => {
           className="action-btn enroll-btn"
           style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(90deg, #3b82f6, #2563eb)', border: 'none', borderRadius: '12px', padding: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.3s ease' }}
         >
-          {course.isEnrolled || onEnroll.name === 'handleStartLearning' ? "Continue Learning" : "Enroll Now"}
+          {course.isEnrolled ? "Continue Learning" : "Enroll Now"}
         </button>
       </div>
     </div>
