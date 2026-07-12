@@ -1,6 +1,7 @@
 const Quiz = require("../models/Quiz");
 const QuizAttempt = require("../models/QuizAttempt");
 const Progress = require("../models/Progress");
+const Content = require("../models/Content");
 const Course = require("../models/Course");
 
 // Helper for platform thumbnails and links
@@ -124,31 +125,42 @@ exports.submitQuiz = async (req, res) => {
   });
 
   try {
-    const totalQuizzes = await Quiz.countDocuments({ course: quiz.course._id });
-    const progressRecord = await Progress.findOne({
+    const [totalQuizzes, totalContents] = await Promise.all([
+      Quiz.countDocuments({ course: quiz.course._id }),
+      Content.countDocuments({ course: quiz.course._id }),
+    ]);
+
+    let progressRecord = await Progress.findOne({
       student: req.user.id,
       course: quiz.course._id,
     });
 
-    if (progressRecord) {
-      if (!progressRecord.quizzesAttempted.includes(attempt._id)) {
-        progressRecord.quizzesAttempted.push(attempt._id);
-      }
-
-      progressRecord.completionPercentage = totalQuizzes > 0
-        ? Math.round((progressRecord.quizzesAttempted.length / totalQuizzes) * 100)
-        : 0;
-      progressRecord.isCompleted = progressRecord.completionPercentage >= 100;
-      await progressRecord.save();
-    } else {
-      await Progress.create({
+    if (!progressRecord) {
+      progressRecord = await Progress.create({
         student: req.user.id,
         course: quiz.course._id,
-        quizzesAttempted: [attempt._id],
-        completionPercentage: totalQuizzes > 0 ? Math.round((1 / totalQuizzes) * 100) : 0,
-        isCompleted: totalQuizzes === 1,
+        completedContents: [],
+        quizzesAttempted: [],
+        completionPercentage: 0,
+        isCompleted: false,
       });
     }
+
+    if (!progressRecord.quizzesAttempted.includes(attempt._id)) {
+      progressRecord.quizzesAttempted.push(attempt._id);
+    }
+
+    const totalSteps = totalContents + totalQuizzes;
+    const completedContentCount = progressRecord.completedContents?.length || 0;
+    const completedQuizCount = progressRecord.quizzesAttempted?.length || 0;
+    progressRecord.completionPercentage = totalSteps > 0
+      ? Math.round(((completedContentCount + completedQuizCount) / totalSteps) * 100)
+      : 0;
+    progressRecord.isCompleted = totalContents > 0
+      ? completedContentCount >= totalContents
+      : completedQuizCount >= totalQuizzes;
+
+    await progressRecord.save();
   } catch (progressError) {
     console.error("Failed to update progress record:", progressError);
   }
