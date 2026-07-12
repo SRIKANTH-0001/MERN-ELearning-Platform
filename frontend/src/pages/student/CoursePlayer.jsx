@@ -29,11 +29,17 @@ const CoursePlayer = () => {
           getCourseById(courseId)
         ]);
 
-        setContents(contentData);
+        const sortedContents = [...contentData].sort((a, b) => (a.order ?? 1) - (b.order ?? 1));
+        setContents(sortedContents);
         setCourse(courseData);
 
-        if (contentData.length > 0) {
-          setActiveContent(contentData[0]);
+        if (sortedContents.length > 0) {
+          setActiveContent((current) => {
+            if (current && sortedContents.some((item) => item._id === current._id)) {
+              return current;
+            }
+            return sortedContents[0];
+          });
         }
       } catch (error) {
         console.error("Error fetching course data:", error);
@@ -69,14 +75,25 @@ const CoursePlayer = () => {
 
   const getEmbedUrl = (url) => {
     if (!url) return null;
-    if (url.includes("youtube.com") || url.includes("youtu.be")) {
-      const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
-      return `https://www.youtube.com/embed/${videoId}`;
+
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtu\.be\/)([\w-]{11})/);
+    if (youtubeMatch) {
+      return `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}?rel=0`;
     }
+
     return url;
   };
 
   if (loading) return <div className="loading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', color: '#fff', fontSize: '18px' }}>Initializing your classroom...</div>;
+
+  const currentEmbedUrl = activeContent ? getEmbedUrl(activeContent.resourceUrl) : null;
+  const isYouTubeVideo = Boolean(activeContent?.resourceUrl && /youtube\.com|youtu\.be/.test(activeContent.resourceUrl));
+
+  const openVideoInNewTab = () => {
+    if (activeContent?.resourceUrl) {
+      window.open(activeContent.resourceUrl, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', padding: '20px' }}>
@@ -128,12 +145,13 @@ const CoursePlayer = () => {
       <div className="course-player-container" style={{ maxWidth: '1600px', margin: '0 auto' }}>
         <div className="video-section">
           <div className="video-container glass-card" style={{ padding: '0', borderRadius: '24px', overflow: 'hidden' }}>
-            {activeContent ? (
+            {currentEmbedUrl ? (
               <iframe
-                src={getEmbedUrl(activeContent.resourceUrl)}
-                title={activeContent.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                src={currentEmbedUrl}
+                title={activeContent?.title || "Course video"}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
                 style={{ width: '100%', height: '100%', border: 'none' }}
               ></iframe>
             ) : (
@@ -143,6 +161,28 @@ const CoursePlayer = () => {
               </div>
             )}
           </div>
+
+          {isYouTubeVideo && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', position: 'relative', zIndex: 10 }}>
+              <button
+                type="button"
+                onClick={openVideoInNewTab}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  border: 'none',
+                  color: '#fff',
+                  padding: '10px 16px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+                }}
+              >
+                ▶ Open on YouTube
+              </button>
+            </div>
+          )}
 
           <div className="glass-card content-info" style={{ marginTop: '20px', background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.1)', padding: '25px', borderRadius: '16px' }}>
             <h3 style={{ margin: '0 0 15px 0', fontSize: '20px', color: '#f8fafc' }}>About this Session</h3>
@@ -164,8 +204,9 @@ const CoursePlayer = () => {
                 <div style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>No curriculum items found.</div>
               ) : (
                 contents.map((item, index) => (
-                  <div
-                    key={item._id}
+                  <button
+                    key={item._id || index}
+                    type="button"
                     className={`playlist-item ${activeContent?._id === item._id ? "active" : ""}`}
                     onClick={() => setActiveContent(item)}
                     style={{
@@ -176,7 +217,12 @@ const CoursePlayer = () => {
                       marginBottom: '8px',
                       display: 'flex',
                       gap: '12px',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      width: '100%',
+                      textAlign: 'left',
+                      border: 'none',
+                      color: 'inherit',
+                      font: 'inherit'
                     }}
                   >
                     <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>
@@ -186,7 +232,7 @@ const CoursePlayer = () => {
                       <div style={{ fontSize: '14px', fontWeight: '600', color: activeContent?._id === item._id ? '#60a5fa' : '#f8fafc' }}>{item.title}</div>
                       <div style={{ fontSize: '11px', color: '#64748b' }}>{item.duration || "15 mins"}</div>
                     </div>
-                  </div>
+                  </button>
                 ))
               )}
             </div>
@@ -211,7 +257,11 @@ const CoursePlayer = () => {
                     background: 'rgba(255,255,255,0.03)',
                     textDecoration: 'none',
                     border: '1px solid rgba(255,255,255,0.05)',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.3s',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    zIndex: 2,
+                    pointerEvents: 'auto'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
                   onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
