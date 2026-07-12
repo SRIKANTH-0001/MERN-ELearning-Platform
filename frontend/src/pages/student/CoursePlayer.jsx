@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getContentByCourse } from "../../api/contentApi";
+import { useParams, useNavigate } from "react-router-dom";
+import { getContentByCourse, markContentCompleted } from "../../api/contentApi";
 import { getCourseById } from "../../api/courseApi";
+import { getStudentProgress } from "../../api/progressApi";
 import { toast } from "react-toastify";
 import "../../styles/coursePlayer.css";
 
 const CoursePlayer = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [course, setCourse] = useState(null);
   const [contents, setContents] = useState([]);
   const [activeContent, setActiveContent] = useState(null);
+  const [courseProgress, setCourseProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [completingContentId, setCompletingContentId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,14 +26,20 @@ const CoursePlayer = () => {
           return;
         }
 
-        const [contentData, courseData] = await Promise.all([
+        const [contentData, courseData, progressData] = await Promise.all([
           getContentByCourse(courseId),
-          getCourseById(courseId)
+          getCourseById(courseId),
+          getStudentProgress()
         ]);
 
         const sortedContents = [...contentData].sort((a, b) => (a.order ?? 1) - (b.order ?? 1));
         setContents(sortedContents);
         setCourse(courseData);
+
+        const matchedProgress = (progressData || []).find((item) =>
+          item.course?._id === courseId || item.course === courseId
+        );
+        setCourseProgress(matchedProgress || null);
 
         if (sortedContents.length > 0) {
           setActiveContent((current) => {
@@ -88,6 +96,41 @@ const CoursePlayer = () => {
 
   const currentEmbedUrl = activeContent ? getEmbedUrl(activeContent.resourceUrl) : null;
   const isYouTubeVideo = Boolean(activeContent?.resourceUrl && /youtube\.com|youtu\.be/.test(activeContent.resourceUrl));
+  const completedContentIds = new Set((courseProgress?.completedContents || []).map((item) => (typeof item === "string" ? item : item._id)));
+  const videoContents = contents.filter((item) => item.type === "video");
+  const allVideosCompleted = videoContents.length === 0 || videoContents.every((item) => completedContentIds.has(item._id));
+
+  const handleSelectContent = async (item) => {
+    setActiveContent(item);
+
+    if (item.type !== "video" || !item._id || completedContentIds.has(item._id) || completingContentId) {
+      return;
+    }
+
+    setCompletingContentId(item._id);
+    try {
+      await markContentCompleted(item._id);
+      setCourseProgress((prev) =>
+        prev
+          ? { ...prev, completedContents: [...(prev.completedContents || []), item._id] }
+          : { completedContents: [item._id] }
+      );
+    } catch (error) {
+      console.error("Failed to mark content as completed:", error);
+      toast.error("Unable to update your learning progress.");
+    } finally {
+      setCompletingContentId(null);
+    }
+  };
+
+  const handleQuizClick = () => {
+    if (!allVideosCompleted) {
+      toast.info("Complete all tutorial videos before opening the assessment.");
+      return;
+    }
+
+    navigate(`/student/quiz`, { state: { courseId } });
+  };
 
   const openVideoInNewTab = () => {
     if (activeContent?.resourceUrl) {
@@ -126,19 +169,21 @@ const CoursePlayer = () => {
         </div>
 
         <button
-          onClick={() => navigate(`/student/quiz`, { state: { courseId } })}
+          onClick={handleQuizClick}
+          disabled={!allVideosCompleted}
           style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            background: allVideosCompleted ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(255,255,255,0.1)',
             border: 'none',
             color: '#fff',
             padding: '10px 24px',
             borderRadius: '12px',
-            cursor: 'pointer',
+            cursor: allVideosCompleted ? 'pointer' : 'not-allowed',
             fontSize: '14px',
-            fontWeight: '700'
+            fontWeight: '700',
+            opacity: allVideosCompleted ? 1 : 0.8
           }}
         >
-          🏁 Finish & Quiz
+          {allVideosCompleted ? '🏁 Finish & Quiz' : 'Watch tutorials'}
         </button>
       </div>
 
@@ -208,7 +253,7 @@ const CoursePlayer = () => {
                     key={item._id || index}
                     type="button"
                     className={`playlist-item ${activeContent?._id === item._id ? "active" : ""}`}
-                    onClick={() => setActiveContent(item)}
+                    onClick={() => handleSelectContent(item)}
                     style={{
                       padding: '12px',
                       borderRadius: '12px',
@@ -231,6 +276,9 @@ const CoursePlayer = () => {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: activeContent?._id === item._id ? '#60a5fa' : '#f8fafc' }}>{item.title}</div>
                       <div style={{ fontSize: '11px', color: '#64748b' }}>{item.duration || "15 mins"}</div>
+                      {item.type === "video" && completedContentIds.has(item._id) && (
+                        <div style={{ fontSize: '10px', color: '#10b981', marginTop: '4px' }}>✓ completed</div>
+                      )}
                     </div>
                   </button>
                 ))

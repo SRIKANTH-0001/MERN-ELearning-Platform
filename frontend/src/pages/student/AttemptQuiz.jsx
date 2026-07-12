@@ -5,6 +5,8 @@ import Lottie from "lottie-react";
 import api from "../../api/axios";
 import { submitQuiz, getQuizByCourse } from "../../api/quizApi";
 import { getMyEnrolledCourses } from "../../api/courseApi";
+import { getContentByCourse } from "../../api/contentApi";
+import { getStudentProgress } from "../../api/progressApi";
 
 const AttemptQuiz = () => {
   const location = useLocation();
@@ -49,7 +51,29 @@ const AttemptQuiz = () => {
           setEnrolledCourses(courses);
           setLoading(false);
         } else {
-          // If courseId exists, fetch quiz directly
+          try {
+            const [contentData, progressData] = await Promise.all([
+              getContentByCourse(courseId),
+              getStudentProgress()
+            ]);
+
+            const matchedProgress = (progressData || []).find((item) =>
+              item.course?._id === courseId || item.course === courseId
+            );
+            const completedContentIds = new Set((matchedProgress?.completedContents || []).map((item) => (typeof item === "string" ? item : item._id)));
+            const videoContents = (contentData || []).filter((item) => item.type === "video");
+            const allVideosCompleted = videoContents.length === 0 || videoContents.every((item) => completedContentIds.has(item._id));
+
+            if (!allVideosCompleted) {
+              setQuiz(null);
+              setError("Complete all tutorial videos before you can access the assessment.");
+              setLoading(false);
+              return;
+            }
+          } catch (progressErr) {
+            console.error("Failed to verify tutorial completion:", progressErr);
+          }
+
           await fetchQuizData(courseId);
         }
       } catch (err) {
